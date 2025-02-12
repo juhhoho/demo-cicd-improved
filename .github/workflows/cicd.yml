@@ -3,8 +3,7 @@ on:
     branches: [ "dev" ]
     types: [opened, synchronize]
   push:
-    branches:
-      - "dev"  # ✅ dev 브랜치에 push되면 CD 실행!
+    branches: ["dev"]
 
 jobs:
   prepare:
@@ -26,7 +25,7 @@ jobs:
   ci:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
-    needs: prepare
+    needs: [prepare]
     permissions:
       contents: read
     steps:
@@ -51,14 +50,15 @@ jobs:
   cd:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    needs: [prepare, ci]
+    needs: [ci]
     steps:
       - uses: actions/checkout@v4
       - name: Docker build & push to Docker Hub
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/docker-test .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/docker-test
           docker push ${{ secrets.DOCKER_USERNAME }}/docker-test
+          
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
