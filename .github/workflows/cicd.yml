@@ -46,6 +46,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build with Gradle Wrapper
         run: ./gradlew build
+      - name: Upload build artifacts  # ✅ 빌드된 JAR 파일 저장
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: build/libs/*.jar
 
   cd:
     if: github.event_name == 'push'
@@ -53,6 +58,11 @@ jobs:
     needs: [ci]
     steps:
       - uses: actions/checkout@v4
+      - name: Download build artifacts  # ✅ 빌드된 JAR 파일 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: build/libs
       - name: Docker build & push to Docker Hub
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
