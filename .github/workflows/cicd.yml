@@ -46,7 +46,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build with Gradle Wrapper
         run: ./gradlew build
-      - name: Upload build artifacts  # ✅ 빌드된 JAR 파일 저장
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
@@ -58,7 +58,7 @@ jobs:
     needs: [ci]
     steps:
       - uses: actions/checkout@v4
-      - name: Download build artifacts  # ✅ 빌드된 JAR 파일 다운로드
+      - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
