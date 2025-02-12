@@ -56,7 +56,7 @@ jobs:
       - name: Docker build & push to Docker Hub
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/docker-test
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/docker-test .
           docker push ${{ secrets.DOCKER_USERNAME }}/docker-test
           
       - name: Deploy to EC2
