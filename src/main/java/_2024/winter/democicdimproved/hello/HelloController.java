@@ -10,4 +10,8 @@ public class HelloController {
     public ResponseEntity<String> printHello(){
         return ResponseEntity.ok().body("Hello, World!");
     }
+    @GetMapping("/bye")
+    public ResponseEntity<String> printBye(){
+        return ResponseEntity.ok().body("Bye, World!");
+    }
 }
