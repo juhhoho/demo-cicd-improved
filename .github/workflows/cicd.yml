@@ -59,10 +59,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
-          path: ./deploy/
+          path: .
 
       - name: Rename application.yml for Production
-        run: mv ./deploy/application-test.yml ./deploy/application-prod.yml
+        run: |
+          mkdir -p deploy
+          mv src/main/resources/application-test.yml deploy/application-prod.yml
 
       - name: Docker build & push to Docker Hub
         run: |
@@ -83,4 +85,3 @@ jobs:
               -v /home/ec2-user/application-prod.yml:/app/application.yml \
               -e SPRING_PROFILES_ACTIVE=prod \
               ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
-
