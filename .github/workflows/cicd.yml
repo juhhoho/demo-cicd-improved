@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - name: Slack Alarm
-          uses: 8398a7/action-slack@v2.0.2
+          uses: Ilshidur/action-slack@2.1.0
           with:
               status: ${{ job.status }}
               author_name: GitHub-Actions CI/CD
