@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Restore application.yml
+      - name: Restore application.yml (CI)
         run: |
           echo "${{ secrets.YML }}" | base64 --decode > src/main/resources/application-test.yml
 
@@ -34,13 +34,18 @@ jobs:
         run: docker run -d -p 6379:6379 --name redis-test redis
 
       - name: Build & Test with Gradle (CI)
-        run: ./gradlew test
+        run: ./gradlew build --stacktrace
 
-      - name: Upload build artifacts
+      - name: Check if JAR file exists
+        run: ls -al build/libs/
+
+      - name: Upload build artifacts (JAR + application-test.yml)
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            src/main/resources/application-test.yml
 
   cd:
     if: github.event_name == 'push'
@@ -50,15 +55,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download build artifacts
+      - name: Download build artifacts (JAR + application-test.yml)
         uses: actions/download-artifact@v4
         with:
           name: build-artifact
-          path: build/libs
+          path: ./deploy/
 
-      - name: Restore application.yml
-        run: |
-          echo "${{ secrets.YML }}" | base64 --decode > src/main/resources/application-prod.yml
+      - name: Rename application.yml for Production
+        run: mv ./deploy/application-test.yml ./deploy/application-prod.yml
 
       - name: Docker build & push to Docker Hub
         run: |
@@ -75,5 +79,8 @@ jobs:
           script: |
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
             sudo docker stop $(sudo docker ps -q)
-            sudo docker run -d --log-driver=syslog -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
+            sudo docker run -d --log-driver=syslog -p 8080:8080 \
+              -v /home/ec2-user/application-prod.yml:/app/application.yml \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
 
