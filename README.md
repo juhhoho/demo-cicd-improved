@@ -1,2 +1,2 @@
 ## CI/CD 
-hello world!
+hello world
