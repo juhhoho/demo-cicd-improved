@@ -32,7 +32,10 @@ jobs:
 
       # 1️⃣ LOCAL_YML을 application.yml로 생성
       - name: Download application.yml (LOCAL_YML)
-        run: echo "${{ secrets.LOCAL_YML }}" | base64 --decode > ./src/main/resources/application.yml
+        uses: actions/download-artifact@v4
+        with:
+          name: application-yml
+          path: ./src/main/resources
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
