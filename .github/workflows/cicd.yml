@@ -41,6 +41,9 @@ jobs:
     needs: [ci]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Ensure resources directory exists
+        run: mkdir -p ./src/main/resources/
       
       - name: Replace application.yml with DEV_YML
         run: echo "${{ secrets.DEV_YML }}" | base64 --decode > ./src/main/resources/application.yml
