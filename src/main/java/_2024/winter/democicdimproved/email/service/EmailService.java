@@ -1,6 +1,8 @@
 package _2024.winter.democicdimproved.email.service;
 
 import _2024.winter.democicdimproved.email.config.RedisConfig;
+import _2024.winter.democicdimproved.email.entity.Email;
+import _2024.winter.democicdimproved.email.repository.EmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final RedisConfig redisConfig;
     private int authNumber;
+    private final EmailRepository emailRepository;
 
     @Value("${spring.mail.username}")
     private String serviceName;
@@ -40,6 +43,13 @@ public class EmailService {
                         "회원 가입 폼에 해당 번호를 입력해주세요.";
         // 이메일 전송
         mailSend(serviceName, customerMail, title, content);
+
+        Email email = Email.builder()
+                .address(customerMail)
+                .content(content)
+                .build();
+
+        emailRepository.saveAndFlush(email);
 
         // 인증 번호 반환
         return ResponseEntity.ok().body(Integer.toString(authNumber));
