@@ -12,11 +12,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Create application.yml in Artifacts
+      - name: Create application.yml from LOCAL_YML
         run: |
-          echo "${{ secrets.DEV_YML }}" | base64 --decode > application.yml
+          echo "${{ secrets.LOCAL_YML }}" | base64 --decode > application.yml
         shell: bash
-      - name: Upload application.yml
+      - name: Upload application.yml (LOCAL_YML)
         uses: actions/upload-artifact@v4
         with:
           name: application-yml
@@ -29,7 +29,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - name: Download application.yml
+      - name: Download application.yml (LOCAL_YML)
         uses: actions/download-artifact@v4
         with:
           name: application-yml
@@ -45,6 +45,18 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build with Gradle Wrapper
         run: ./gradlew build
+
+      - name: Replace application.yml with DEV_YML if build succeeds
+        if: success()
+        run: |
+          echo "${{ secrets.DEV_YML }}" | base64 --decode > ./src/main/resources/application.yml
+
+      - name: Upload application.yml (DEV_YML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-yml
+          path: ./src/main/resources/application.yml
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -118,3 +130,4 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         if: always()
+
