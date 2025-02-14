@@ -13,6 +13,9 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Ensure resources directory exists
+        run: mkdir -p ./src/main/resources/
 
       - name: Create application.yml from LOCAL_YML
         run: echo "${{ secrets.LOCAL_YML }}" | base64 --decode > ./src/main/resources/application.yml
